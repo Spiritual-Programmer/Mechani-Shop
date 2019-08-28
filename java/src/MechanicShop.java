@@ -416,8 +416,11 @@ try{
 				if(rowCount == 0)
 					match = false;
 			}
-			System.out.print("\tvin passed!\n");
+			int ownership_idIn  = Integer.parseInt(esql.executeQueryAndReturnResult("SELECT MAX(ownership_id) FROM owns;").get(0).get(0)) + 1;
+			System.out.print("\tnext ownership_id: $" + ownership_idIn +"\n");
 			System.out.print("\tnext vin: $" + vinIn +"\n");
+			System.out.print("\tEnter customer_id: $");
+			String customer_idIn = in.readLine();
 			System.out.print("\tEnter make: $");
 			String makeIn = in.readLine();
 			System.out.print("\tEnter model: $");
@@ -425,9 +428,21 @@ try{
 			System.out.print("\tEnter year ie. ####: $");
 			String yearIn = in.readLine();
 
-			String sql = "INSERT INTO car VALUES ('" + vinIn + "', '" + makeIn + "', '" + modelIn + "', '" + yearIn +  "');";
-	
-			esql.executeUpdate(sql);
+			String checkQuery1 = "SELECT * FROM customer WHERE id = '" + customer_idIn + "';";
+			int rowCount1 = esql.executeQuery(checkQuery1);
+
+			if(rowCount1 == 1) {
+				String sql = "INSERT INTO car VALUES ('" + vinIn + "', '" + makeIn + "', '" + modelIn + "', '" + yearIn +  "');";
+				esql.executeUpdate(sql);
+
+				sql = "INSERT INTO owns VALUES ('" + ownership_idIn + "', '" + customer_idIn + "', '" + vinIn + "');";
+				esql.executeUpdate(sql);
+			}
+			else {
+				System.out.print("\tError (customer_id)\n");
+			}
+
+			
 
 			
 			
@@ -531,7 +546,7 @@ try{
 			String query = "SELECT * FROM closed_request WHERE bill < 100;";
 	
 			List<List<String>> result  = esql.executeQueryAndReturnResult(query);
-			System.out.println (result);
+			printResult(result);
 			
 		}catch(Exception e) {
 			System.err.println (e.getMessage ());
@@ -540,10 +555,10 @@ try{
 	
 	public static void ListCustomersWithMoreThan20Cars(MechanicShop esql){//7
 		try{
-			String query = "SELECT * FROM customer, (SELECT customer_id, COUNT(customer_id) FROM owns GROUP BY customer_id HAVING COUNT(customer_id) > 20) B WHERE customer.id = B.customer_id;";
+			String query = "SELECT * FROM customer, (SELECT customer_id, COUNT(customer_id) FROM owns GROUP BY customer_id HAVING COUNT(customer_id) > 20 ) B WHERE customer.id = B.customer_id ORDER BY COUNT;";
 	
 			List<List<String>> result  = esql.executeQueryAndReturnResult(query);
-			System.out.println (result);
+			printResult(result);
 			
 		}catch(Exception e) {
 			System.err.println (e.getMessage ());
@@ -552,10 +567,10 @@ try{
 	
 	public static void ListCarsBefore1995With50000Milles(MechanicShop esql){//8
 		try{
-			String query = "SELECT *FROM car, service_request WHERE car.year<'1995' AND service_request.odometer>='50000' AND car.vin = service_request.car_vin;";
+			String query = "SELECT * FROM car, service_request WHERE car.year<'1995' AND service_request.odometer >='50000' AND car.vin = service_request.car_vin;";
 	
 			List<List<String>> result  = esql.executeQueryAndReturnResult(query);
-			System.out.println (result);
+			printResult(result);
 			
 		}catch(Exception e) {
 			System.err.println (e.getMessage ());
@@ -570,7 +585,7 @@ try{
 			String query = "SELECT car.make, car.model, count(service_request) from car, service_request where car.vin = car_vin group by car.vin order by count desc limit " + kinput + ";";
 	
 			List<List<String>> result  = esql.executeQueryAndReturnResult(query);
-			System.out.println (result);
+			printResult(result);
 			
 		}catch(Exception e) {
 			System.err.println (e.getMessage ());
@@ -583,17 +598,23 @@ try{
 			String query = "SELECT id, fname, lname, SUM(bill) FROM customer, service_request, closed_request WHERE customer.id = service_request.customer_id AND service_request.rid = closed_request.rid GROUP BY id ORDER BY SUM(bill) DESC;";
 	
 			List<List<String>> result  = esql.executeQueryAndReturnResult(query);
-			System.out.println (result);
+			printResult(result);
 			
 		}catch(Exception e) {
 			System.err.println (e.getMessage ());
 		}		
 		
 	}
-	public static void printResult(List<List<String>>result) {
-		int n = result.size().
-			for(int i =o; i < n; i++) {
-				system.out.println (result.get(i) + "\n");
-			}
-	}
+
+
+	public static void printResult(List<List<String>> result) {
+		int n = result.size();
+		for(int i = 0; i < n; i++) {
+			System.out.println (result.get(i) + "\n");
+		}
+	} 
+	
 }
+
+
+	
