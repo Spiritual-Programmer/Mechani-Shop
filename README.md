@@ -1,0 +1,2 @@
+# Mechani-Shop
+Built a database management system replicating a mechanic shop to store customers, mechanics, cars, and to create and close service requests. Users have access to 5,000 different cars from the data and can present information  on cars, customers, and service requests by queries to manipulate and transform information. This DBMS was developed using PostgreSQL and Java with the creation of ER diagrams and relational schemas. This system allows a mechanic shop to manage its operation and service in a command-line interface. 
